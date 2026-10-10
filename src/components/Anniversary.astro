@@ -45,7 +45,7 @@ const anniversaryPayload = {
   <div class="anniversary-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
     {anniversaries.map((a, i) => (
       <div
-        class="glass-gold anniversary-card px-5 py-4 text-center group"
+        class="glass anniversary-card px-5 py-4 text-center group"
         id={`anniversaryCard-${i}`}
         data-anniversary-index={i}
       >
@@ -65,9 +65,9 @@ const anniversaryPayload = {
           </svg>
           <span class="sr-only">{ui.generateCard.replace('{label}', '')}</span>
         </button>
-        <div class="text-pink-300/50 text-xs sm:text-sm mb-2 tracking-wide">{a.icon} {a.label}</div>
+        <div class="text-pink-300/70 text-xs sm:text-sm mb-2 tracking-wide">{a.icon} {a.label}</div>
         <p class="anniversary-text text-sm sm:text-base font-medium min-h-[2.5em] flex items-center justify-center" id={`anniversaryText-${i}`}></p>
-        <div class="anniversary-since text-white/30 text-xs mt-2 tabular-nums">{ui.startedFrom.replace('{date}', a.date)}</div>
+        <div class="anniversary-since text-white/50 text-xs mt-2 tabular-nums">{ui.startedFrom.replace('{date}', a.date)}</div>
       </div>
     ))}
   </div>

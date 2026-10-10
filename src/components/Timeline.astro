@@ -36,14 +36,14 @@ const timelineHint = messages?.timeline?.hint || DEFAULT_MESSAGES.timeline.hint;
         >
           <div class="text-sm sm:text-base mb-1.5">{m.icon}</div>
           <div class="timeline-dot"></div>
-          <div class="timeline-date text-white/40 text-[10px] sm:text-xs mt-1.5">{m.date.replace(/-/g, '.')}</div>
+          <div class="timeline-date text-white/50 text-[11px] sm:text-xs mt-1.5">{m.date.replace(/-/g, '.')}</div>
           <div class="timeline-label text-white/60 text-xs sm:text-sm">{m.label}</div>
         </div>
       ))}
       <div class="timeline-node timeline-node-now">
         <div class="text-sm sm:text-base mb-1.5">✨</div>
         <div class="timeline-dot glow-gold"></div>
-        <div class="timeline-date text-white/40 text-[10px] sm:text-xs mt-1.5">{timelineNow}</div>
+        <div class="timeline-date text-white/50 text-[11px] sm:text-xs mt-1.5">{timelineNow}</div>
         <div class="timeline-label text-white/60 text-xs sm:text-sm">{timelineNow}</div>
       </div>
     </div>
