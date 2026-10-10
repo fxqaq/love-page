@@ -13,7 +13,7 @@ const { config, messages } = Astro.props;
 const anniversaries = resolveAnniversaries(config);
 
 // 纪念日倒计时彩蛋：多少天内显示特殊文案，默认 3 天；0 表示关闭
-const countdownThreshold = config.anniversaryCountdownThreshold ?? 3;
+const countdownThreshold = config.anniversaryCountdownThreshold ?? 10;
 // 纪念日排序方式：'asc' | 'desc' | 'default'，默认 'asc'
 const sortOrder = config.anniversarySortOrder ?? 'asc';
 const pageUnlockedEvent = APP_EVENTS.pageUnlocked;
@@ -67,7 +67,7 @@ const anniversaryPayload = {
         </button>
         <div class="text-pink-300/50 text-xs sm:text-sm mb-2 tracking-wide">{a.icon} {a.label}</div>
         <p class="anniversary-text text-sm sm:text-base font-medium min-h-[2.5em] flex items-center justify-center" id={`anniversaryText-${i}`}></p>
-        <div class="text-white/10 text-[10px] mt-2 group-hover:text-white/30 transition-colors tabular-nums">{ui.startedFrom.replace('{date}', a.date)}</div>
+        <div class="anniversary-since text-white/30 text-xs mt-2 tabular-nums">{ui.startedFrom.replace('{date}', a.date)}</div>
       </div>
     ))}
   </div>
@@ -84,7 +84,7 @@ const anniversaryPayload = {
   function readAnniversaryPayload() {
     const fallback = {
       anniversariesData: [],
-      countdownThreshold: 3,
+      countdownThreshold: 10,
       sortOrder: 'asc',
       pageUnlockedEvent: 'page-unlocked',
       generateMemorialCardEvent: 'generate-memorial-card',
@@ -339,6 +339,7 @@ const anniversaryPayload = {
 
       // 使用 Flexbox order 属性重新排序卡片
       cardEl.style.order = String(sortedIndex);
+      cardEl.classList.toggle('anniversary-next', sortedIndex === 0);
 
       const displayLabel = formatDisplayLabel(label, nth, i18n);
       const params = { label, displayLabel, gap, nth };

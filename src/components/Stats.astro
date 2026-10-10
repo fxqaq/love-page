@@ -17,6 +17,7 @@ interface DashboardStat {
 }
 
 interface StatsSectionState {
+  visitCount: boolean;
   timeline: boolean;
   timers: boolean;
   photoWall: boolean;
@@ -26,6 +27,7 @@ interface StatsSectionState {
 const { config, messages } = Astro.props;
 const statsMode = resolveStatsMode(config);
 const sectionState: StatsSectionState = {
+  visitCount: config.statsShowVisitCount === true,
   timeline: config.sections?.timeline !== false,
   timers: config.sections?.timers !== false,
   photoWall: config.sections?.photoWall !== false,
@@ -53,7 +55,9 @@ function wholeDaysSince(dateStr: string, now = new Date()): number {
 }
 
 function shouldShowStat(statKey: string, sections: StatsSectionState): boolean {
-  if ((statKey === 'loveDays' || statKey === 'marriageDays') && !sections.timers) return false;
+  // 计时器已经展示了相恋/婚姻时长，打开计时器时不再重复
+  if ((statKey === 'loveDays' || statKey === 'marriageDays') && sections.timers) return false;
+  if (statKey === 'visitCount' && !sections.visitCount) return false;
   if (statKey === 'milestoneCount' && !sections.timeline) return false;
   if (statKey === 'photoCount' && !sections.photoWall) return false;
   if (statKey === 'wishCompletion' && !sections.wishes) return false;
@@ -173,6 +177,7 @@ const statsPayload = {
     const fallback = {
       statsMode: 'hybrid',
       sectionState: {
+        visitCount: false,
         timeline: true,
         timers: true,
         photoWall: true,
@@ -209,6 +214,7 @@ const statsPayload = {
           ? payload.statsMode
           : fallback.statsMode,
         sectionState: {
+          visitCount: payload.sectionState?.visitCount === true,
           timeline: payload.sectionState?.timeline !== false,
           timers: payload.sectionState?.timers !== false,
           photoWall: payload.sectionState?.photoWall !== false,
@@ -246,7 +252,9 @@ const statsPayload = {
   }
 
   function shouldShowStat(statKey, sections) {
-    if ((statKey === 'loveDays' || statKey === 'marriageDays') && !sections.timers) return false;
+    // 计时器已经展示了相恋/婚姻时长，打开计时器时不再重复
+  if ((statKey === 'loveDays' || statKey === 'marriageDays') && sections.timers) return false;
+  if (statKey === 'visitCount' && !sections.visitCount) return false;
     if (statKey === 'milestoneCount' && !sections.timeline) return false;
     if (statKey === 'photoCount' && !sections.photoWall) return false;
     if (statKey === 'wishCompletion' && !sections.wishes) return false;

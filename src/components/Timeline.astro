@@ -21,6 +21,7 @@ const timelineHint = messages?.timeline?.hint || DEFAULT_MESSAGES.timeline.hint;
   class="w-full max-w-xl sm:max-w-2xl lg:max-w-3xl px-2 reveal timeline-section"
   id="timelineSection"
   data-milestone-count={milestones.length}
+  data-close-label={timelineClose}
 >
   <div class="timeline-shell">
     <div class="timeline-track py-5" id="timeline" aria-label={timelineAriaLabel}>
@@ -70,6 +71,7 @@ const timelineHint = messages?.timeline?.hint || DEFAULT_MESSAGES.timeline.hint;
     const rightFade = section.querySelector('.timeline-fade-right');
     const timelineLine = container.querySelector('.timeline-line');
     const milestoneCount = Number(section.dataset.milestoneCount ?? '0');
+    const closeLabel = escapeHtml(section.dataset.closeLabel ?? '');
 
     let isScrollable = false;
     let activeIndex = -1;
@@ -304,7 +306,7 @@ const timelineHint = messages?.timeline?.hint || DEFAULT_MESSAGES.timeline.hint;
       const date = ((node as HTMLElement).dataset.date ?? '').replace(/-/g, '.');
       overlay.innerHTML =
         `<div class="story-card glass">` +
-        `<button class="story-close" aria-label="${timelineClose}">×</button>` +
+        `<button class="story-close" aria-label="${closeLabel}">×</button>` +
         `<div class="text-pink-300/70 text-sm mb-2">${escapeHtml(icon + ' ' + label + ' · ' + date)}</div>` +
         `<p class="text-white/90 text-sm sm:text-base leading-relaxed"></p>` +
         `</div>`;

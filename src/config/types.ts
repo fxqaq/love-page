@@ -117,6 +117,8 @@ export interface Config {
   shareTemplates?: string[];
   stats?: StatItem[];
   statsMode?: StatsMode;
+  /** 是否在数字区显示本机访问次数，默认 false */
+  statsShowVisitCount?: boolean;
   wishes?: WishItem[];
   timers?: TimeMark[];
   anniversaries?: AnniversaryMark[];

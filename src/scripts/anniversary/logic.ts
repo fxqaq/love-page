@@ -45,7 +45,9 @@ function hasChineseCharacters(text: string): boolean {
 }
 
 function getChineseOrdinal(nth: number, label: string, suffix: string): string {
-  return `第 ${nth} 个${label}${suffix}`;
+  // 标签以拉丁字母或数字开头时补一个空格，如"第 38 个 Mr YANG 生日"
+  const gap = /^[A-Za-z0-9]/.test(label) ? ' ' : '';
+  return `第 ${nth} 个${gap}${label}${suffix}`;
 }
 
 function getEnglishOrdinal(nth: number): string {

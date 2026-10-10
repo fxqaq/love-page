@@ -311,6 +311,11 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+/* 数量为奇数时最后一张占满整行，避免留半行空白 */
+.stats-item:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .stats-item--primary {
   min-height: 124px;
   padding-top: 18px;
@@ -977,10 +982,10 @@
 
 .anniversary-share-cta {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 24px;
-  height: 24px;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1025,6 +1030,23 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-align: center;
+}
+
+/* 排序后的第一张：最近的纪念日 */
+.anniversary-next {
+  border-color: rgba(255, 215, 0, 0.35);
+}
+
+[data-theme='light'] .anniversary-next {
+  border-color: rgba(200, 140, 0, 0.45);
+}
+
+/* 浅色主题下金色渐变在奶油底上看不清，换成深琥珀色 */
+[data-theme='light'] .anniversary-text,
+[data-theme='light'] .anniversary-soon .anniversary-text {
+  background: linear-gradient(135deg, #a16207, #c2410c);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* 纪念日即将到来：温和呼吸光晕 + 强化边框，营造期待感 */
@@ -1831,6 +1853,16 @@
     gap: 4px;
   }
 
+  /* 非横滑模式下让节点平分宽度，避免首尾节点被裁掉 */
+  .timeline-section:not(.is-scrollable) .timeline-node {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .timeline-section:not(.is-scrollable) .timeline-label {
+    overflow-wrap: anywhere;
+  }
+
   .timeline-section {
     --timeline-fade-bg: rgba(10, 10, 26, 0.96);
   }
@@ -1854,12 +1886,12 @@
     min-height: 3.9em;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .stats-item {
+    min-height: 92px;
   }
 
   .stats-item--primary {
-    min-height: 112px;
+    min-height: 104px;
   }
 
   .today-summary-cta {
@@ -1869,6 +1901,11 @@
 
   .music-panel {
     max-width: calc(100vw - 24px);
+  }
+
+  /* 给右下角悬浮按钮留出空间，避免盖住最后的内容 */
+  .main-content {
+    padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

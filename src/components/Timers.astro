@@ -23,16 +23,18 @@ const timerUnits = {
   {timers.map((t, i) => (
     <div class="glass flex-1 min-w-[140px] px-5 py-4 text-center timer-card group" data-timer-index={i} data-timer-date={t.date}>
       <div class="text-pink-300/50 text-xs sm:text-sm mb-2 tracking-wide">{t.icon} {t.label}</div>
-      <div class="timer-val text-3xl sm:text-4xl font-bold leading-none" id={`timer-${i}-years`}>0</div>
-      <div class="text-white/30 text-xs mt-0.5">{timerUnits.years}</div>
-      <div class="timer-val text-xl sm:text-2xl font-semibold leading-none mt-1" id={`timer-${i}-days`}>0</div>
-      <div class="text-white/30 text-xs mt-0.5 mb-2">{timerUnits.days}</div>
+      <div class="flex items-baseline justify-center gap-1.5 mb-2">
+        <span class="timer-val text-3xl sm:text-4xl font-bold leading-none" id={`timer-${i}-years`}>0</span>
+        <span class="text-white/40 text-xs">{timerUnits.years}</span>
+        <span class="timer-val text-3xl sm:text-4xl font-bold leading-none ml-1" id={`timer-${i}-days`}>0</span>
+        <span class="text-white/40 text-xs">{timerUnits.days}</span>
+      </div>
       <div class="flex justify-center gap-4 text-white/40 text-xs sm:text-sm">
         <span><span class="timer-val timer-digit text-base sm:text-lg font-medium" id={`timer-${i}-h`}>00</span> {timerUnits.hours}</span>
         <span><span class="timer-val timer-digit text-base sm:text-lg font-medium" id={`timer-${i}-m`}>00</span> {timerUnits.minutes}</span>
         <span><span class="timer-val timer-digit text-base sm:text-lg font-medium" id={`timer-${i}-s`}>00</span> {timerUnits.seconds}</span>
       </div>
-      <div class="text-white/10 text-[10px] mt-2 group-hover:text-white/30 transition-colors tabular-nums">{t.date}</div>
+      <div class="text-white/30 text-xs mt-2 tabular-nums">{t.date}</div>
     </div>
   ))}
 </section>

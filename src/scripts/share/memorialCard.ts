@@ -65,7 +65,7 @@ function pickNearest(items: RankedAnniversary[]): RankedAnniversary | undefined 
 
 export function resolveMemorialCardContext(input: ResolveMemorialCardContextInput): MemorialCardContext | null {
   const now = input.now ?? new Date();
-  const countdownThreshold = Number.isFinite(input.countdownThreshold) ? Number(input.countdownThreshold) : 7;
+  const countdownThreshold = Number.isFinite(input.countdownThreshold) ? Number(input.countdownThreshold) : 10;
 
   const ranked = (input.anniversaries ?? [])
     .map((anniversary, index) => ({ anniversary, index }))

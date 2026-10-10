@@ -17,6 +17,7 @@ const ctaText = messages?.actions.generateCard || '生成纪念卡';
 
 const payload = {
   anniversaries,
+  countdownThreshold: config.anniversaryCountdownThreshold ?? 10,
   generateMemorialCardEvent: APP_EVENTS.generateMemorialCard,
   messages: {
     defaultPrimary,
@@ -47,6 +48,7 @@ const payload = {
   function readTodaySummaryPayload() {
     const fallback = {
       anniversaries: [],
+      countdownThreshold: 10,
       generateMemorialCardEvent: 'generate-memorial-card',
       messages: {
         defaultPrimary: '今天也值得纪念。',
@@ -67,6 +69,9 @@ const payload = {
       const payload = JSON.parse(payloadEl.textContent || '{}');
       return {
         anniversaries: Array.isArray(payload.anniversaries) ? payload.anniversaries : fallback.anniversaries,
+        countdownThreshold: Number.isFinite(payload.countdownThreshold)
+          ? Number(payload.countdownThreshold)
+          : fallback.countdownThreshold,
         generateMemorialCardEvent:
           typeof payload.generateMemorialCardEvent === 'string' && payload.generateMemorialCardEvent
             ? payload.generateMemorialCardEvent
@@ -86,6 +91,7 @@ const payload = {
 
     const payload = readTodaySummaryPayload();
     const msg = payload.messages;
+    const countdownThreshold = payload.countdownThreshold;
     let nearestAnniversaryIndex = null;
 
     function renderSummary() {
@@ -118,7 +124,7 @@ const payload = {
         return;
       }
 
-      if (nearest.gap <= 7) {
+      if (countdownThreshold > 0 && nearest.gap <= countdownThreshold) {
         primaryEl.textContent = msg.soonPrimary.replace('{displayLabel}', displayLabel).replace('{gap}', String(nearest.gap));
         secondaryEl.textContent = msg.soonSecondary;
         return;

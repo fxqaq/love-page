@@ -51,7 +51,8 @@
 | `quotes` | `string[]` | 内置多条 | 轮播/随机文案来源。会去重并去空白。 |
 | `photos` | `Photo[]` | 内置 3 条 | 照片墙素材。 |
 | `stats` | `StatItem[]` | 内置 3 条 | 数据卡片内容。可选。 |
-| `statsMode` | `'auto' \| 'manual' \| 'hybrid'` | `hybrid` | 数字模块数据策略：`auto` 纯自动计算，`manual` 纯手动配置，`hybrid` 手动优先并自动补齐；自动统计会遵循 `sections` 开关过滤。 |
+| `statsMode` | `'auto' \| 'manual' \| 'hybrid'` | `hybrid` | 数字模块数据策略：`auto` 纯自动计算，`manual` 纯手动配置，`hybrid` 手动优先并自动补齐；自动统计会遵循 `sections` 开关过滤；开启计时器时不再显示相恋/婚姻天数。 |
+| `statsShowVisitCount` | `boolean` | `false` | 是否在数字模块显示本机访问次数（只统计当前设备）。 |
 | `wishes` | `WishItem[]` | 内置 3 条 | 愿望列表。可选。 |
 | `timers` | `TimeMark[]` | 恋爱时光、婚姻时光 | 计时器列表。 |
 | `anniversaries` | `AnniversaryMark[]` | 内置 3 条 | 纪念日卡片与庆祝文案来源。 |
@@ -131,9 +132,9 @@
 | --- | --- | --- | --- |
 | `passwordConfig.enabled` | `boolean` | `false` | 是否启用密码拦截。 |
 | `passwordConfig.password` | `string` | 空字符串 | 访问密码；构建时自动转密文，但仍属于前端可见信息。 |
-| `passwordConfig.hint` | `string` | `请输入访问密码` | 输入提示文案。 |
-| `passwordConfig.successMessage` | `string` | `欢迎进入我们的专属空间（默认末尾附加符号）` | 验证成功提示。 |
-| `passwordConfig.errorMessage` | `string` | `密码好像不太对哦，再试试看？` | 验证失败提示。 |
+| `passwordConfig.hint` | `string` | 跟随语言包 | 输入提示文案，填写后优先于语言包。 |
+| `passwordConfig.successMessage` | `string` | 跟随语言包 | 验证成功提示，填写后优先于语言包。 |
+| `passwordConfig.errorMessage` | `string` | 跟随语言包 | 验证失败提示，填写后优先于语言包。 |
 | `passwordConfig.bruteForceProtection` | `object` | 见下表 | 防暴力尝试策略。 |
 
 `passwordConfig.bruteForceProtection` 子项：

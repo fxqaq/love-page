@@ -126,9 +126,6 @@ export const DEFAULT_CONFIG: Config = {
   passwordConfig: {
     enabled: false,
     password: '',
-    hint: '请输入访问密码',
-    successMessage: '欢迎进入我们的专属空间 ❤️',
-    errorMessage: '密码好像不太对哦，再试试看？',
     bruteForceProtection: {
       enabled: true,
       freeAttempts: 5,
