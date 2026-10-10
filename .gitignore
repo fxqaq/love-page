@@ -150,3 +150,4 @@ config.test.json
 config.test.*.json
 .agents/
 docs/plans/
+.claude/launch.json
