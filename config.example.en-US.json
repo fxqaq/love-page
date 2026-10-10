@@ -175,6 +175,7 @@
   "anniversaryCountdownThreshold": 10,
   "anniversarySortOrder": "asc",
   "loadingLabel": "Getting things ready for you...",
+  "sectionOrder": ["todaySummary", "stats", "timers", "timeline", "anniversary", "wishes"],
   "sections": {
     "todaySummary": true,
     "stats": true,

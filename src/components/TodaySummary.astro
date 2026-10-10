@@ -1,7 +1,7 @@
 ---
 import { resolveAnniversaries, type Config } from '../config';
 import { APP_EVENTS } from '../constants/client';
-import type { LocaleMessages } from '../i18n/utils';
+import { DEFAULT_MESSAGES, type LocaleMessages } from '../i18n/utils';
 
 interface Props {
   config: Config;
@@ -9,11 +9,12 @@ interface Props {
 }
 
 const { config, messages } = Astro.props;
+const m = messages ?? DEFAULT_MESSAGES;
 const anniversaries = resolveAnniversaries(config);
-const sectionTitle = messages?.sections.todaySummary || '今日摘要';
-const defaultPrimary = messages?.todaySummary.defaultPrimary || '今天也值得纪念。';
-const defaultSecondary = messages?.todaySummary.defaultSecondary || '记录当下，一起生成一张纪念卡。';
-const ctaText = messages?.actions.generateCard || '生成纪念卡';
+const sectionTitle = m.sections.todaySummary;
+const defaultPrimary = m.todaySummary.defaultPrimary;
+const defaultSecondary = m.todaySummary.defaultSecondary;
+const ctaText = m.actions.generateCard;
 
 const payload = {
   anniversaries,
@@ -22,12 +23,12 @@ const payload = {
   messages: {
     defaultPrimary,
     defaultSecondary,
-    todayPrimary: messages?.todaySummary.todayPrimary || '今天是我们的{displayLabel}',
-    todaySecondary: messages?.todaySummary.todaySecondary || '别忘了留下一张纪念卡，记录今天。',
-    soonPrimary: messages?.todaySummary.soonPrimary || '距离{displayLabel}还有 {gap} 天',
-    soonSecondary: messages?.todaySummary.soonSecondary || '重要日子快到了，提前准备一张纪念卡吧。',
-    upcomingPrimary: messages?.todaySummary.upcomingPrimary || '下一次重要日子：{displayLabel}',
-    upcomingSecondary: messages?.todaySummary.upcomingSecondary || '还有 {gap} 天，先把今天记下来。',
+    todayPrimary: m.todaySummary.todayPrimary,
+    todaySecondary: m.todaySummary.todaySecondary,
+    soonPrimary: m.todaySummary.soonPrimary,
+    soonSecondary: m.todaySummary.soonSecondary,
+    upcomingPrimary: m.todaySummary.upcomingPrimary,
+    upcomingSecondary: m.todaySummary.upcomingSecondary,
   },
 };
 ---
@@ -44,44 +45,8 @@ const payload = {
 <script id="today-summary-script-payload" type="application/json" set:html={JSON.stringify(payload)}></script>
 <script>
   import { formatDisplayLabel, getAnniversaryInfo } from '../scripts/anniversary/logic.ts';
-
-  function readTodaySummaryPayload() {
-    const fallback = {
-      anniversaries: [],
-      countdownThreshold: 10,
-      generateMemorialCardEvent: 'generate-memorial-card',
-      messages: {
-        defaultPrimary: '今天也值得纪念。',
-        defaultSecondary: '记录当下，一起生成一张纪念卡。',
-        todayPrimary: '今天是我们的{displayLabel}',
-        todaySecondary: '别忘了留下一张纪念卡，记录今天。',
-        soonPrimary: '距离{displayLabel}还有 {gap} 天',
-        soonSecondary: '重要日子快到了，提前准备一张纪念卡吧。',
-        upcomingPrimary: '下一次重要日子：{displayLabel}',
-        upcomingSecondary: '还有 {gap} 天，先把今天记下来。',
-      },
-    };
-
-    const payloadEl = document.getElementById('today-summary-script-payload');
-    if (!(payloadEl instanceof HTMLScriptElement)) return fallback;
-
-    try {
-      const payload = JSON.parse(payloadEl.textContent || '{}');
-      return {
-        anniversaries: Array.isArray(payload.anniversaries) ? payload.anniversaries : fallback.anniversaries,
-        countdownThreshold: Number.isFinite(payload.countdownThreshold)
-          ? Number(payload.countdownThreshold)
-          : fallback.countdownThreshold,
-        generateMemorialCardEvent:
-          typeof payload.generateMemorialCardEvent === 'string' && payload.generateMemorialCardEvent
-            ? payload.generateMemorialCardEvent
-            : fallback.generateMemorialCardEvent,
-        messages: payload.messages || fallback.messages,
-      };
-    } catch {
-      return fallback;
-    }
-  }
+  import { APP_EVENTS } from '../constants/client';
+  import { readJsonPayload } from '../utils';
 
   (function initTodaySummary() {
     const primaryEl = document.getElementById('todaySummaryPrimary');
@@ -89,7 +54,12 @@ const payload = {
     const shareTrigger = document.getElementById('todaySummaryShareBtn');
     if (!(primaryEl instanceof HTMLElement) || !(secondaryEl instanceof HTMLElement)) return;
 
-    const payload = readTodaySummaryPayload();
+    const payload = readJsonPayload('today-summary-script-payload', {
+      anniversaries: [],
+      countdownThreshold: 10,
+      generateMemorialCardEvent: APP_EVENTS.generateMemorialCard,
+      messages: {} as Record<string, string>,
+    });
     const msg = payload.messages;
     const countdownThreshold = payload.countdownThreshold;
     let nearestAnniversaryIndex = null;

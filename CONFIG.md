@@ -105,6 +105,7 @@
 | 字段 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `sections` | `object` | 见下表 | 控制首页各功能区显示/隐藏。 |
+| `sectionOrder` | `string[]` | `['todaySummary','stats','timers','timeline','anniversary','wishes']` | 首页主体区块的显示顺序。只写想调整的几项即可，没写的按默认顺序排在后面；无效或重复的值会被忽略。照片墙固定在最后。 |
 
 `sections` 子项：
 

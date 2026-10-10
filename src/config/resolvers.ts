@@ -6,6 +6,7 @@ import type {
   MusicStartPolicy,
   MusicTrack,
   PrivacyConfig,
+  SectionKey,
   StartupImage,
   StatsMode,
   TimeMark,
@@ -185,6 +186,26 @@ export function resolveIosStartupImages(
 
   if (images.length > 0) return images;
   return [{ href: resolveSiteImage(config) }];
+}
+
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+  'todaySummary',
+  'stats',
+  'timers',
+  'timeline',
+  'anniversary',
+  'wishes',
+];
+
+export function resolveSectionOrder(config: Pick<Config, 'sectionOrder'>): SectionKey[] {
+  const order: SectionKey[] = [];
+  for (const key of config.sectionOrder ?? []) {
+    if (DEFAULT_SECTION_ORDER.includes(key) && !order.includes(key)) order.push(key);
+  }
+  for (const key of DEFAULT_SECTION_ORDER) {
+    if (!order.includes(key)) order.push(key);
+  }
+  return order;
 }
 
 export function resolveStatsMode(config: Pick<Config, 'statsMode'>): StatsMode {

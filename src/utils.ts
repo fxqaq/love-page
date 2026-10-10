@@ -44,3 +44,18 @@ export function diffFrom(dateStr: string): DiffResult {
     s: String(Math.floor((ms % 6e4) / 1e3)).padStart(2, '0'),
   };
 }
+
+/**
+ * 读取组件在服务端输出的 JSON payload，缺失或解析失败时返回 fallback。
+ * payload 由服务端完整生成，这里只做浅合并，不再逐字段校验。
+ */
+export function readJsonPayload<T extends object>(id: string, fallback: T): T {
+  const el = document.getElementById(id);
+  if (!(el instanceof HTMLScriptElement)) return fallback;
+  try {
+    const data = JSON.parse(el.textContent || '{}');
+    return data && typeof data === 'object' ? { ...fallback, ...data } : fallback;
+  } catch {
+    return fallback;
+  }
+}

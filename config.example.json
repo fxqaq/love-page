@@ -176,6 +176,7 @@
   "anniversaryCountdownThreshold": 10,
   "anniversarySortOrder": "asc",
   "loadingLabel": "正在为你准备...",
+  "sectionOrder": ["todaySummary", "stats", "timers", "timeline", "anniversary", "wishes"],
   "sections": {
     "todaySummary": true,
     "stats": true,

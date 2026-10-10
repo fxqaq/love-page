@@ -12,7 +12,7 @@ interface Props {
 const { config, messages } = Astro.props;
 const anniversaries = resolveAnniversaries(config);
 
-// 纪念日倒计时彩蛋：多少天内显示特殊文案，默认 3 天；0 表示关闭
+// 纪念日倒计时彩蛋：多少天内显示特殊文案，默认 10 天；0 表示关闭
 const countdownThreshold = config.anniversaryCountdownThreshold ?? 10;
 // 纪念日排序方式：'asc' | 'desc' | 'default'，默认 'asc'
 const sortOrder = config.anniversarySortOrder ?? 'asc';
@@ -34,10 +34,10 @@ const anniversaryPayload = {
   pageUnlockedEvent,
   generateMemorialCardEvent: APP_EVENTS.generateMemorialCard,
   uiLabels: ui,
-  i18n: messages?.anniversary ? {
-    suffix: messages.anniversary.suffix,
-    templates: messages.anniversary.templates,
-  } : undefined,
+  i18n: {
+    suffix: messages?.anniversary?.suffix ?? defaultAnniversaryLabels.suffix,
+    templates: ui.templates,
+  },
 };
 ---
 
@@ -80,58 +80,8 @@ const anniversaryPayload = {
     getAnniversaryInfo,
     renderAnniversaryText,
   } from '../scripts/anniversary/logic.ts';
-
-  function readAnniversaryPayload() {
-    const fallback = {
-      anniversariesData: [],
-      countdownThreshold: 10,
-      sortOrder: 'asc',
-      pageUnlockedEvent: 'page-unlocked',
-      generateMemorialCardEvent: 'generate-memorial-card',
-      uiLabels: {
-        generateCard: 'Generate {label} memorial card',
-        startedFrom: 'Started from: {date}',
-        clickToClose: 'Click anywhere to close',
-        templates: {
-          normal: '✨ {gap} days until our {displayLabel}',
-          soon: '💫 Just {gap} days until {displayLabel}!',
-          today: '🎉 Today is our {displayLabel}! 🎉',
-          celebrate: 'Happy {displayLabel}',
-        },
-      },
-      i18n: {
-        suffix: ' Anniversary',
-        templates: {
-          normal: '✨ {gap} days until our {displayLabel}',
-          soon: '💫 Just {gap} days until {displayLabel}!',
-          today: '🎉 Today is our {displayLabel}! 🎉',
-          celebrate: 'Happy {displayLabel}',
-        },
-      },
-    };
-    const payloadEl = document.getElementById('anniversary-script-payload');
-    if (!(payloadEl instanceof HTMLScriptElement)) return fallback;
-
-    try {
-      const payload = JSON.parse(payloadEl.textContent || '{}');
-      return {
-        anniversariesData: Array.isArray(payload.anniversariesData) ? payload.anniversariesData : fallback.anniversariesData,
-        countdownThreshold: Number.isFinite(payload.countdownThreshold) ? payload.countdownThreshold : fallback.countdownThreshold,
-        sortOrder: typeof payload.sortOrder === 'string' ? payload.sortOrder : fallback.sortOrder,
-        pageUnlockedEvent: typeof payload.pageUnlockedEvent === 'string' && payload.pageUnlockedEvent
-          ? payload.pageUnlockedEvent
-          : fallback.pageUnlockedEvent,
-        generateMemorialCardEvent:
-          typeof payload.generateMemorialCardEvent === 'string' && payload.generateMemorialCardEvent
-            ? payload.generateMemorialCardEvent
-            : fallback.generateMemorialCardEvent,
-        uiLabels: payload.uiLabels || fallback.uiLabels,
-        i18n: payload.i18n || fallback.i18n,
-      };
-    } catch {
-      return fallback;
-    }
-  }
+  import { APP_EVENTS } from '../constants/client';
+  import { readJsonPayload } from '../utils';
 
   const {
     anniversariesData,
@@ -141,7 +91,15 @@ const anniversaryPayload = {
     generateMemorialCardEvent,
     uiLabels,
     i18n,
-  } = readAnniversaryPayload();
+  } = readJsonPayload('anniversary-script-payload', {
+    anniversariesData: [],
+    countdownThreshold: 10,
+    sortOrder: 'asc',
+    pageUnlockedEvent: APP_EVENTS.pageUnlocked,
+    generateMemorialCardEvent: APP_EVENTS.generateMemorialCard,
+    uiLabels: { clickToClose: '' },
+    i18n: undefined,
+  });
 
   // 彩蛋是否显示「点击任意处关闭」提示，改为 true 可恢复
   const showCelebrateCloseTip = false;

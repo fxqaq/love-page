@@ -1,14 +1,10 @@
----
-const icons = ['♥', '❤', '💕'];
-const count = 15;
----
-
 <div id="floating-hearts"></div>
 
 <script>
   (function initFloatingHearts() {
     const container = document.getElementById('floating-hearts');
     if (!container) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const icons = ['♥', '❤', '💕'];
     const count = 8;
     for (let i = 0; i < count; i++) {

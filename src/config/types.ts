@@ -58,6 +58,7 @@ export interface MusicTrack {
 }
 
 export type StatsMode = 'auto' | 'manual' | 'hybrid';
+export type SectionKey = 'todaySummary' | 'stats' | 'timers' | 'timeline' | 'anniversary' | 'wishes';
 export type MusicPlayMode = 'single' | 'sequence' | 'shuffle';
 export type MusicStartPolicy = 'first' | 'last' | 'random';
 
@@ -127,6 +128,8 @@ export interface Config {
   anniversarySortOrder?: 'asc' | 'desc' | 'default';
   loadingLabel?: string;
   defaultTheme?: 'light' | 'dark' | 'auto';
+  /** 主内容区块的显示顺序；未列出的区块按默认顺序追加，显隐仍由 sections 控制 */
+  sectionOrder?: SectionKey[];
   sections?: {
     todaySummary?: boolean;
     stats?: boolean;
