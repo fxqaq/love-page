@@ -24,14 +24,16 @@ const sharePayload = {
   anniversaryI18n: m.anniversary,
   generateMemorialCardEvent: APP_EVENTS.generateMemorialCard,
   uiMessages: {
-    badgeToday: m.anniversary.today,
-    badgeCountdown: m.share.badgeCountdown,
     mottoFallback: m.share.mottoFallback,
-    fallbackTitle: m.share.fallbackTitle,
-    fallbackMessage: m.share.fallbackMessage,
-    loveYears: m.share.loveYears,
-    marriageYears: m.share.marriageYears,
-    generatedOn: m.share.generatedOn,
+    daysUnit: m.share.daysUnit,
+    countdownCaption: m.share.countdownCaption,
+    todayCaption: m.share.todayCaption,
+    todayHero: m.share.todayHero,
+    togetherCaption: m.share.togetherCaption,
+    loveLabel: m.share.loveLabel,
+    marriageLabel: m.share.marriageLabel,
+    durationValue: m.share.durationValue,
+    startedFrom: m.anniversary.startedFrom,
     footerText: m.share.footerText,
     previewTitle: m.share.title,
     previewSubtitle: m.share.previewSubtitle,
@@ -67,38 +69,46 @@ const sharePayload = {
 
   const memorialCardPalette = {
     dark: {
-      bgStart: '#1a1126',
-      bgMid: '#2a1632',
-      bgEnd: '#1a1126',
-      halo: 'rgba(255, 188, 217, 0.16)',
-      titleText: '#ffffff',
-      mottoText: 'rgba(255, 232, 242, 0.88)',
-      badgeBg: 'rgba(255, 255, 255, 0.14)',
-      badgeText: '#ffd6e7',
-      displayLabelText: '#ffffff',
-      messageText: 'rgba(255, 236, 245, 0.92)',
-      fallbackTitleText: '#ffd6e7',
-      fallbackMessageText: 'rgba(255, 236, 245, 0.9)',
-      statsText: 'rgba(255, 184, 212, 0.95)',
-      dateText: 'rgba(255, 255, 255, 0.58)',
-      footerText: 'rgba(255, 255, 255, 0.32)',
+      bgTop: '#1d1132',
+      bgBottom: '#0c0a1c',
+      blobA: 'rgba(255, 107, 157, 0.30)',
+      blobB: 'rgba(255, 190, 110, 0.16)',
+      star: '255, 255, 255',
+      frame: 'rgba(255, 255, 255, 0.14)',
+      eyebrow: 'rgba(255, 255, 255, 0.55)',
+      names: '#ffffff',
+      motto: 'rgba(255, 226, 238, 0.86)',
+      caption: 'rgba(255, 255, 255, 0.8)',
+      heroFrom: '#ff8fb1',
+      heroTo: '#ffd27a',
+      unit: 'rgba(255, 214, 231, 0.92)',
+      meta: 'rgba(255, 255, 255, 0.5)',
+      divider: 'rgba(255, 255, 255, 0.16)',
+      heart: '#ff6b9d',
+      statLabel: 'rgba(255, 255, 255, 0.55)',
+      statValue: '#ffffff',
+      footer: 'rgba(255, 255, 255, 0.38)',
     },
     light: {
-      bgStart: '#fffafc',
-      bgMid: '#ffeef5',
-      bgEnd: '#fff7fb',
-      halo: 'rgba(255, 125, 168, 0.14)',
-      titleText: '#5a2f44',
-      mottoText: '#7a4f65',
-      badgeBg: 'rgba(255, 136, 178, 0.16)',
-      badgeText: '#8f2f56',
-      displayLabelText: '#4f2a3d',
-      messageText: '#6c4257',
-      fallbackTitleText: '#8f2f56',
-      fallbackMessageText: '#72495d',
-      statsText: '#a23d64',
-      dateText: 'rgba(87, 58, 73, 0.72)',
-      footerText: 'rgba(87, 58, 73, 0.48)',
+      bgTop: '#fff8fb',
+      bgBottom: '#ffecf3',
+      blobA: 'rgba(255, 107, 157, 0.20)',
+      blobB: 'rgba(255, 186, 110, 0.20)',
+      star: '214, 51, 108',
+      frame: 'rgba(163, 49, 93, 0.16)',
+      eyebrow: '#8a6b78',
+      names: '#3a2230',
+      motto: '#7a4f65',
+      caption: '#5c4250',
+      heroFrom: '#e0457b',
+      heroTo: '#e8873a',
+      unit: '#a3315d',
+      meta: '#8a6b78',
+      divider: 'rgba(163, 49, 93, 0.18)',
+      heart: '#e0457b',
+      statLabel: '#8a6b78',
+      statValue: '#3a2230',
+      footer: '#a08894',
     },
   };
 
@@ -143,13 +153,54 @@ const sharePayload = {
     }
   }
 
+  // 按日期生成固定的星点位置，同一天导出的卡片保持一致
+  function seededRandom(seed) {
+    let value = seed % 233280;
+    return () => {
+      value = (value * 9301 + 49297) % 233280;
+      return value / 233280;
+    };
+  }
+
+  // 文字过宽时逐步缩小字号，返回最终字号
+  function fitFont(ctx, text, prefix, size, family, maxWidth, minSize = 20) {
+    let current = size;
+    ctx.font = `${prefix}${current}px ${family}`;
+    while (current > minSize && ctx.measureText(text).width > maxWidth) {
+      current -= 2;
+      ctx.font = `${prefix}${current}px ${family}`;
+    }
+    return current;
+  }
+
+  function drawHeart(ctx, cx, cy, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + size * 0.4);
+    ctx.bezierCurveTo(cx - size, cy - size * 0.2, cx - size * 0.4, cy - size * 0.9, cx, cy - size * 0.35);
+    ctx.bezierCurveTo(cx + size * 0.4, cy - size * 0.9, cx + size, cy - size * 0.2, cx, cy + size * 0.4);
+    ctx.fill();
+  }
+
+  function fillTemplate(template, values) {
+    return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`{${key}}`, String(value)), template);
+  }
+
+  function daysSince(dateStr, now) {
+    const [y, mo, d] = String(dateStr).split('-').map(Number);
+    const start = new Date(y || now.getFullYear(), (mo || 1) - 1, d || 1);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.max(0, Math.floor((today.getTime() - start.getTime()) / 864e5));
+  }
+
   (function initShare() {
     const floatingShareBtn = document.getElementById('shareBtn');
     let closeActivePreview = null;
 
     function generateMemorialCard(selectedIndex, cb) {
-      const W = 750;
-      const H = 1334;
+      // 3:4 竖版，适合朋友圈、小红书和聊天窗口
+      const W = 1080;
+      const H = 1440;
       const cvs = document.createElement('canvas');
       cvs.width = W;
       cvs.height = H;
@@ -157,6 +208,8 @@ const sharePayload = {
       if (!ctx) return;
       const theme = document.documentElement.dataset.theme;
       const palette = theme === 'light' ? memorialCardPalette.light : memorialCardPalette.dark;
+      const ui = payload.uiMessages;
+      const handFont = String(payload.locale).startsWith('zh') ? "'Ma Shan Zheng', cursive" : "'Dancing Script', cursive";
 
       const context = resolveMemorialCardContext({
         anniversaries: payload.anniversaries,
@@ -164,82 +217,160 @@ const sharePayload = {
         countdownThreshold: payload.countdownThreshold,
         anniversaryI18n: payload.anniversaryI18n || undefined,
       });
-      const love = diffFrom(payload.loveDate);
-      const marriage = diffFrom(payload.marriageDate);
       const now = new Date();
       const displayDate = formatCardDate(payload.locale, now);
       const fileDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-      const bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, palette.bgStart);
-      bg.addColorStop(0.55, palette.bgMid);
-      bg.addColorStop(1, palette.bgEnd);
+      // 背景：竖向渐变 + 两团柔光 + 星点
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, palette.bgTop);
+      bg.addColorStop(1, palette.bgBottom);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      ctx.fillStyle = palette.halo;
-      ctx.beginPath();
-      ctx.arc(W * 0.5, H * 0.2, 180, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = palette.titleText;
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 46px "Dancing Script", cursive';
-      ctx.fillText(`${payload.boy} ♥ ${payload.girl}`, W / 2, 180);
-
-      ctx.fillStyle = palette.mottoText;
-      ctx.font = `22px ${CARD_FONT}`;
-      ctx.fillText(payload.motto || payload.uiMessages.mottoFallback, W / 2, 236);
-
-      if (context) {
-        const badge = context.gap === 0
-          ? payload.uiMessages.badgeToday
-          : payload.uiMessages.badgeCountdown.replace('{gap}', String(context.gap));
-        const icon = typeof context.anniversary.icon === 'string' ? context.anniversary.icon : '💕';
-
-        ctx.fillStyle = palette.badgeBg;
-        if (typeof ctx.roundRect === 'function') {
-          ctx.beginPath();
-          ctx.roundRect(W / 2 - 110, 300, 220, 52, 26);
-          ctx.fill();
-        } else {
-          ctx.fillRect(W / 2 - 110, 300, 220, 52);
-        }
-
-        ctx.fillStyle = palette.badgeText;
-        ctx.font = `bold 22px ${CARD_FONT}`;
-        ctx.fillText(`${icon} ${badge}`, W / 2, 334);
-
-        ctx.fillStyle = palette.displayLabelText;
-        ctx.font = `bold 42px ${CARD_FONT}`;
-        ctx.fillText(context.displayLabel, W / 2, 440);
-
-        ctx.fillStyle = palette.messageText;
-        ctx.font = `28px ${CARD_FONT}`;
-        drawWrappedText(ctx, context.message, W / 2, 510, 560, 46, 3);
-      } else {
-        ctx.fillStyle = palette.fallbackTitleText;
-        ctx.font = `bold 38px ${CARD_FONT}`;
-        ctx.fillText(payload.uiMessages.fallbackTitle, W / 2, 420);
-        ctx.fillStyle = palette.fallbackMessageText;
-        ctx.font = `28px ${CARD_FONT}`;
-        ctx.fillText(payload.uiMessages.fallbackMessage, W / 2, 490);
+      for (const [x, y, r, color] of [
+        [W * 0.12, H * 0.1, 560, palette.blobA],
+        [W * 0.92, H * 0.88, 600, palette.blobB],
+      ]) {
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+        glow.addColorStop(0, color);
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, W, H);
       }
 
-      ctx.fillStyle = palette.statsText;
-      ctx.font = `bold 30px ${CARD_FONT}`;
-      ctx.fillText(payload.uiMessages.loveYears.replace('{years}', String(love.years)).replace('{days}', String(love.days)), W / 2, 900);
-      ctx.fillText(payload.uiMessages.marriageYears.replace('{years}', String(marriage.years)).replace('{days}', String(marriage.days)), W / 2, 956);
+      const random = seededRandom(Number(fileDate.replaceAll('-', '')));
+      for (let i = 0; i < 70; i++) {
+        ctx.fillStyle = `rgba(${palette.star}, ${(0.15 + random() * 0.45).toFixed(2)})`;
+        ctx.beginPath();
+        ctx.arc(random() * W, random() * H, 0.8 + random() * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      ctx.fillStyle = palette.dateText;
-      ctx.font = `18px ${CARD_FONT}`;
-      ctx.fillText(payload.uiMessages.generatedOn.replace('{date}', displayDate), W / 2, 1076);
+      ctx.strokeStyle = palette.frame;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(48, 48, W - 96, H - 96, 40);
+      } else {
+        ctx.rect(48, 48, W - 96, H - 96);
+      }
+      ctx.stroke();
 
-      ctx.fillStyle = palette.footerText;
-      ctx.font = `16px ${CARD_FONT}`;
-      ctx.fillText(payload.uiMessages.footerText, W / 2, H - 90);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '6px';
+      ctx.fillStyle = palette.eyebrow;
+      ctx.font = `26px ${CARD_FONT}`;
+      ctx.fillText(displayDate, W / 2, 150);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
 
-      cvs.toBlob((blob) => cb(blob, fileDate), 'image/png', 0.96);
+      const names = `${payload.boy} ♥ ${payload.girl}`;
+      ctx.fillStyle = palette.names;
+      fitFont(ctx, names, 'bold ', 84, "'Dancing Script', cursive", W - 220, 48);
+      ctx.fillText(names, W / 2, 270);
+
+      ctx.fillStyle = palette.motto;
+      ctx.font = `40px ${handFont}`;
+      drawWrappedText(ctx, payload.motto || ui.mottoFallback, W / 2, 345, W - 260, 56, 2);
+
+      // 主视觉：倒计时天数 / 今天 / 在一起的天数
+      let icon = '💕';
+      let caption = ui.togetherCaption;
+      let heroText = daysSince(payload.loveDate, now).toLocaleString(payload.locale);
+      let showUnit = true;
+      let metaText = ui.startedFrom.replace('{date}', payload.loveDate);
+
+      if (context) {
+        icon = typeof context.anniversary.icon === 'string' && context.anniversary.icon ? context.anniversary.icon : icon;
+        metaText = ui.startedFrom.replace('{date}', context.anniversary.date);
+        if (context.gap === 0) {
+          caption = fillTemplate(ui.todayCaption, { displayLabel: context.displayLabel });
+          heroText = ui.todayHero;
+          showUnit = false;
+        } else {
+          caption = fillTemplate(ui.countdownCaption, { displayLabel: context.displayLabel });
+          heroText = String(context.gap);
+        }
+      }
+
+      ctx.font = `64px ${CARD_FONT}`;
+      ctx.fillText(icon, W / 2, 540);
+
+      ctx.fillStyle = palette.caption;
+      fitFont(ctx, caption, '500 ', 40, CARD_FONT, W - 200, 26);
+      ctx.fillText(caption, W / 2, 620);
+
+      const heroSize = showUnit ? 240 : 150;
+      const heroFont = `bold ${heroSize}px ${CARD_FONT}`;
+      ctx.font = heroFont;
+      const heroWidth = Math.min(ctx.measureText(heroText).width, W - 280);
+      ctx.font = `500 52px ${CARD_FONT}`;
+      const unitWidth = showUnit ? ctx.measureText(ui.daysUnit).width + 18 : 0;
+      const heroX = W / 2 - (heroWidth + unitWidth) / 2;
+      const heroY = showUnit ? 850 : 810;
+
+      const heroFill = ctx.createLinearGradient(heroX, heroY - heroSize, heroX + heroWidth, heroY);
+      heroFill.addColorStop(0, palette.heroFrom);
+      heroFill.addColorStop(1, palette.heroTo);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = heroFill;
+      fitFont(ctx, heroText, 'bold ', heroSize, CARD_FONT, W - 280, 80);
+      ctx.fillText(heroText, heroX, heroY);
+      if (showUnit) {
+        ctx.fillStyle = palette.unit;
+        ctx.font = `500 52px ${CARD_FONT}`;
+        ctx.fillText(ui.daysUnit, heroX + heroWidth + 18, heroY);
+      }
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = palette.meta;
+      ctx.font = `26px ${CARD_FONT}`;
+      ctx.fillText(metaText, W / 2, 930);
+
+      // 分隔线 + 爱心
+      ctx.strokeStyle = palette.divider;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 260, 1020);
+      ctx.lineTo(W / 2 - 44, 1020);
+      ctx.moveTo(W / 2 + 44, 1020);
+      ctx.lineTo(W / 2 + 260, 1020);
+      ctx.stroke();
+      drawHeart(ctx, W / 2, 1022, 18, palette.heart);
+
+      // 底部数据：相恋 / 婚姻时长
+      const stats = [
+        { label: ui.loveLabel, date: payload.loveDate },
+        { label: ui.marriageLabel, date: payload.marriageDate },
+      ].filter((item) => item.date);
+      const columnXs = stats.length > 1 ? [W * 0.3, W * 0.7] : [W / 2];
+      stats.forEach((item, index) => {
+        const diff = diffFrom(item.date);
+        const x = columnXs[index];
+        ctx.fillStyle = palette.statLabel;
+        ctx.font = `26px ${CARD_FONT}`;
+        ctx.fillText(item.label, x, 1110);
+        ctx.fillStyle = palette.statValue;
+        const value = fillTemplate(ui.durationValue, { years: diff.years, days: diff.days });
+        fitFont(ctx, value, 'bold ', 46, CARD_FONT, W * 0.36, 28);
+        ctx.fillText(value, x, 1176);
+      });
+      if (stats.length > 1) {
+        ctx.strokeStyle = palette.divider;
+        ctx.beginPath();
+        ctx.moveTo(W / 2, 1080);
+        ctx.lineTo(W / 2, 1190);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = palette.footer;
+      ctx.font = `24px ${CARD_FONT}`;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '2px';
+      ctx.fillText(ui.footerText, W / 2, H - 100);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+
+      cvs.toBlob((blob) => cb(blob, fileDate), 'image/png');
     }
 
     function doDownload(blob, dateStr) {
