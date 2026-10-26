@@ -5,6 +5,7 @@ import playformCompress from '@playform/compress';
 
 export default defineConfig({
   site: 'https://fxqaq.github.io',
+  base: '/love-page',
   vite: {
     plugins: [tailwindcss()],
   },
